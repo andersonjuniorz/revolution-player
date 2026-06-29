@@ -1,0 +1,221 @@
+/* ==========================================================================
+   Player Bar (Bottom Transport Controls)
+   ========================================================================== */
+
+.player-bar {
+  grid-area: player;
+  background-color: var(--bg-sidebar);
+  border-top: 1px solid var(--border-color);
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+}
+
+/* Detalhes da Faixa Ativa */
+.current-track-container {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.current-track-cover {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.5s ease;
+}
+
+.current-track-cover.playing {
+  animation: disc-rotate 12s linear infinite;
+}
+
+@keyframes disc-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.current-track-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.current-track-title {
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.current-track-artist {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* Controles de Transporte Centrais */
+.transport-controls-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-buttons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.btn-transport {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-transport:hover {
+  color: var(--text-light);
+  transform: scale(1.05);
+}
+
+.btn-transport.active {
+  color: var(--accent-primary);
+  filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.5));
+}
+
+.btn-transport.play-pause {
+  background: var(--text-light);
+  color: var(--bg-base);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.btn-transport.play-pause:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+}
+
+/* Barra de Progresso da Música */
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.progress-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  width: 35px;
+}
+
+.progress-time.end {
+  text-align: right;
+}
+
+.progress-bar-wrapper {
+  flex: 1;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: 2px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0%;
+}
+
+.progress-bar-wrapper:hover .progress-bar-fill {
+  background: linear-gradient(90deg, var(--accent-primary), #10b981);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+.progress-bar-wrapper:hover .progress-bar-bg {
+  height: 6px;
+}
+
+/* Marcadores de Loop A/B Visuais na Barra de Progresso */
+.loop-marker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent-primary);
+  border: 1px solid white;
+  z-index: 10;
+  box-shadow: var(--accent-gradient-glow);
+}
+
+.loop-marker.start {
+  transform: translate(-50%, -50%);
+}
+
+.loop-marker.end {
+  transform: translate(-50%, -50%);
+  background-color: var(--accent-secondary);
+}
+
+.loop-region {
+  position: absolute;
+  height: 4px;
+  background: rgba(6, 182, 212, 0.25);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.progress-bar-wrapper:hover .loop-region {
+  height: 6px;
+}
+
+/* Controles de Volume e Extras da Direita */
+.extra-controls-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 130px;
+}

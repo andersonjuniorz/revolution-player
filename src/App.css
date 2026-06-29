@@ -1,0 +1,380 @@
+/* ==========================================================================
+   Revolution Player - Design System & Custom Styles
+   Estilo Premium Escuro com Glassmorphism e Acabamentos Suaves
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Cores base virão do theme.json via ThemeManager */
+  
+  /* Gradientes e Acentos dependem das variáveis injetadas */
+  --accent-gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  --accent-gradient-glow: 0 0 15px rgba(6, 182, 212, 0.4);
+  
+  /* Cores de texto virão do theme.json */
+  
+  color: var(--text-main);
+  background-color: var(--bg-base);
+  
+  /* Otimizações */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  user-select: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-base);
+}
+
+/* Scrollbar Customizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(161, 161, 170, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(161, 161, 170, 0.4);
+}
+
+/* ==========================================================================
+   Layout Principal (Desktop First)
+   ========================================================================== */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-base);
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 260px) var(--plugins-width, 60px) 1fr var(--practice-width, 280px);
+  grid-template-rows: 1fr 90px;
+  grid-template-areas:
+    "sidebar plugins main practice"
+    "player player player player";
+  width: 100%;
+  height: calc(100vh - 32px);
+  background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.08) 0%, rgba(0, 0, 0, 0) 70%), var(--bg-base);
+  transition: grid-template-columns 0.2s ease-out; /* Smooth toggle for sidebar */
+}
+
+.app-layout.is-dragging {
+  transition: none !important; /* Disable transition during drag */
+}
+
+/* Layout sem o painel de prática (se escondido) */
+.app-layout.hide-practice {
+  grid-template-columns: var(--sidebar-width, 260px) var(--plugins-width, 60px) 1fr 0px;
+  grid-template-areas:
+    "sidebar plugins main practice"
+    "player player player player";
+}
+
+
+/* ==========================================================================
+   Folder Scanner / Gerenciador de Pastas (Main Area Contexts)
+   ========================================================================== */
+
+.scanner-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scanner-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-light);
+}
+
+.scanner-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.scanner-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.scanner-input {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-light);
+  outline: none;
+}
+
+.scanner-input:focus {
+  border-color: var(--accent-primary);
+}
+
+.btn-primary {
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--accent-gradient-glow);
+}
+
+.btn-primary:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  background: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.scanned-folder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.scanned-folder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.btn-remove-folder {
+  color: #f87171;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.btn-remove-folder:hover {
+  color: #ef4444;
+}
+
+.scan-progress-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.scan-progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.scan-progress-bar-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  transition: width 0.3s;
+}
+
+/* ==========================================================================
+   Modais e Caixas de Diálogo
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #18181b;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  width: 400px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-secondary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Dynamic active state visuals */
+.active-pulse {
+  position: relative;
+}
+
+.active-pulse::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: var(--accent-primary);
+  border-radius: 50%;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: var(--accent-gradient-glow);
+}
+
+/* ==========================================================================
+   Boot Screen (Inicialização Premium)
+   ========================================================================== */
+.boot-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #0f0f12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.boot-logo {
+  width: 70px;
+  height: 70px;
+  border-radius: 18px;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 24px;
+  box-shadow: var(--accent-gradient-glow);
+  animation: logoPulse 2s infinite ease-in-out;
+}
+
+.boot-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin: 0 0 20px 0;
+  letter-spacing: -0.5px;
+}
+
+.boot-spinner-container {
+  position: relative;
+  width: 180px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.boot-spinner {
+  position: absolute;
+  width: 60px;
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: 2px;
+  animation: loadingSlide 1.5s infinite ease-in-out;
+}
+
+.boot-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.7);
+  }
+}
+
+@keyframes loadingSlide {
+  0% {
+    left: -60px;
+  }
+  100% {
+    left: 180px;
+  }
+}

@@ -1,0 +1,179 @@
+.playback-bar {
+  background-color: var(--color-bg-surface);
+  border-top: 1px solid var(--color-divider);
+  padding: 0 var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* Left Section: Track Info */
+.pb-track-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 30%;
+  min-width: 180px;
+}
+
+.pb-cover-mock {
+  width: 56px;
+  height: 56px;
+  background-color: var(--color-divider);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+.pb-track-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pb-track-title {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-xs);
+  cursor: pointer;
+}
+
+.pb-track-title:hover {
+  text-decoration: underline;
+}
+
+.pb-track-artist {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.pb-track-artist:hover {
+  text-decoration: underline;
+  color: var(--color-text-primary);
+}
+
+/* Center Section: Controls & Progress */
+.pb-controls-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40%;
+  max-width: 722px;
+}
+
+.pb-transport-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.pb-btn {
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.1s;
+}
+
+.pb-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.pb-btn:active {
+  transform: scale(0.9);
+}
+
+.pb-btn.active {
+  color: var(--color-accent);
+}
+
+.pb-play-btn {
+  background-color: var(--color-text-primary);
+  color: var(--color-bg-app);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius-full);
+}
+
+.pb-play-btn:hover {
+  transform: scale(1.05);
+  background-color: #fff;
+  color: var(--color-bg-app);
+}
+
+.pb-play-btn:active {
+  transform: scale(1);
+}
+
+.pb-progress-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.pb-time {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  min-width: 40px;
+  text-align: right;
+}
+
+.pb-time:last-child {
+  text-align: left;
+}
+
+.pb-progress-bar {
+  flex: 1;
+  height: 4px;
+  background-color: var(--color-divider);
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  position: relative;
+}
+
+.pb-progress-fill {
+  background-color: var(--color-text-primary);
+  height: 100%;
+  width: 45%;
+  border-radius: var(--border-radius-full);
+}
+
+.pb-progress-bar:hover .pb-progress-fill {
+  background-color: var(--color-accent);
+}
+
+/* Right Section: Extra Controls */
+.pb-extra-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  width: 30%;
+  min-width: 180px;
+}
+
+.pb-volume-bar {
+  width: 90px;
+  height: 4px;
+  background-color: var(--color-divider);
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+}
+
+.pb-volume-fill {
+  background-color: var(--color-text-primary);
+  height: 100%;
+  width: 70%;
+  border-radius: var(--border-radius-full);
+}
+
+.pb-volume-bar:hover .pb-volume-fill {
+  background-color: var(--color-accent);
+}
