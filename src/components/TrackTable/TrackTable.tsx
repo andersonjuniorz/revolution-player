@@ -78,7 +78,7 @@ export const TrackTable: React.FC<TrackTableProps> = ({
                 </div>
               </div>
             </td>
-            <td>{track.album}</td>
+            <td className="track-title-cell">{track.album}</td>
             <td>
               {track.bpm ? (
                 <span className="musician-badge bpm">{track.bpm} BPM</span>

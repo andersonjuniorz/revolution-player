@@ -54,10 +54,31 @@ export class MockPlaybackService implements IPlaybackService {
 
     this.audio = new Audio(resolvedUrl);
     this.audio.volume = this.state.isMuted ? 0 : this.state.volume;
-    this.audio.playbackRate = this.state.playbackRate;
     
     this.audio.addEventListener("ended", this.handleTrackEnded);
     this.audio.addEventListener("loadedmetadata", this.handleLoadedMetadata);
+    
+    this.updateAudioPlaybackRate();
+  }
+
+  private updateAudioPlaybackRate() {
+    if (!this.audio) return;
+    
+    // Calcula a taxa de reprodução real baseada no slider de velocidade e no pitch
+    const pitchRatio = Math.pow(2, this.state.pitch / 12);
+    const finalRate = this.state.playbackRate * pitchRatio;
+    
+    this.audio.playbackRate = finalRate;
+    
+    // Se o pitch não for 0, desativamos a preservação de pitch para que o playbackRate altere o tom.
+    const preserve = this.state.pitch === 0;
+    
+    // @ts-ignore
+    this.audio.preservesPitch = preserve;
+    // @ts-ignore
+    if (this.audio.webkitPreservesPitch !== undefined) this.audio.webkitPreservesPitch = preserve;
+    // @ts-ignore
+    if (this.audio.mozPreservesPitch !== undefined) this.audio.mozPreservesPitch = preserve;
   }
 
   private handleLoadedMetadata = () => {
@@ -221,18 +242,14 @@ export class MockPlaybackService implements IPlaybackService {
   public setPlaybackRate(rate: number): void {
     const speed = Math.max(0.5, Math.min(2.0, rate));
     this.state.playbackRate = speed;
-    if (this.audio) {
-      this.audio.playbackRate = speed;
-    }
+    this.updateAudioPlaybackRate();
     this.notify();
   }
 
   public setPitch(semitones: number): void {
-    // Tom mockado na UI no frontend MVP.
-    // No backend real em Rust, usaremos um processador DSP (ex: SoundTouch ou Rubber Band)
-    // para mudar o Pitch independentemente da velocidade.
     const pitchVal = Math.max(-12, Math.min(12, semitones));
     this.state.pitch = pitchVal;
+    this.updateAudioPlaybackRate();
     this.notify();
   }
 

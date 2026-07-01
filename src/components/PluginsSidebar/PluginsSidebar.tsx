@@ -6,7 +6,6 @@ export const PluginsSidebar: React.FC = () => {
     <div style={{
       gridArea: "plugins",
       backgroundColor: "var(--bg-card)",
-      borderRight: "1px solid var(--border-color)",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",

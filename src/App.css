@@ -14,8 +14,8 @@
   /* Cores base virão do theme.json via ThemeManager */
   
   /* Gradientes e Acentos dependem das variáveis injetadas */
-  --accent-gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  --accent-gradient-glow: 0 0 15px rgba(6, 182, 212, 0.4);
+  --accent-gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary, var(--accent-primary)));
+  --accent-gradient-glow: 0 0 15px var(--accent-secondary, rgba(6, 182, 212, 0.4));
   
   /* Cores de texto virão do theme.json */
   
@@ -80,7 +80,7 @@ body {
     "player player player player";
   width: 100%;
   height: calc(100vh - 32px);
-  background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.08) 0%, rgba(0, 0, 0, 0) 70%), var(--bg-base);
+  background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent-primary) 8%, transparent) 0%, transparent 70%), var(--bg-base);
   transition: grid-template-columns 0.2s ease-out; /* Smooth toggle for sidebar */
 }
 
@@ -116,7 +116,7 @@ body {
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0;
-  color: var(--text-light);
+  color: var(--text-main);
 }
 
 .scanner-desc {
@@ -133,10 +133,10 @@ body {
 .scanner-input {
   flex: 1;
   padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--bg-active);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: var(--text-light);
+  color: var(--text-main);
   outline: none;
 }
 
@@ -179,8 +179,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-active);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.85rem;
 }
@@ -238,7 +238,7 @@ body {
 }
 
 .modal-content {
-  background: #18181b;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   width: 400px;
@@ -266,7 +266,7 @@ body {
   border-radius: 8px;
   background: transparent;
   border: 1px solid var(--border-color);
-  color: var(--text-light);
+  color: var(--text-main);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -329,7 +329,7 @@ body {
 .boot-title {
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--text-light);
+  color: var(--text-main);
   margin: 0 0 20px 0;
   letter-spacing: -0.5px;
 }

@@ -54,18 +54,21 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
+  border: none;
+  width: 100%;
 }
 
-.nav-item:hover, .nav-item.active {
-  color: var(--text-light);
+.nav-item:hover {
+  color: var(--text-main);
   background-color: var(--bg-card-hover);
 }
 
 .nav-item.active {
-  background: rgba(6, 182, 212, 0.15);
+  background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
   border-left: 3px solid var(--accent-primary);
   padding-left: 9px;
-  color: var(--accent-primary);
+  color: var(--text-main);
 }
 
 .sidebar-title {

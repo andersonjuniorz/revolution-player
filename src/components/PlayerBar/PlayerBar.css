@@ -99,12 +99,12 @@
 }
 
 .btn-transport.play-pause {
-  background: var(--text-light);
-  color: var(--bg-base);
+  background: var(--accent-primary);
+  color: var(--text-inverse, #ffffff);
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary) 30%, transparent);
 }
 
 .btn-transport.play-pause:hover {

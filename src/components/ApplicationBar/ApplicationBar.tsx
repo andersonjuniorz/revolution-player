@@ -82,14 +82,6 @@ export const ApplicationBar: React.FC<ApplicationBarProps> = ({
     console.log("[UI Action] Exit app triggered");
   };
 
-  const handleMinimize = () => {
-    console.log("[UI Action] Minimize window triggered");
-  };
-
-  const handleMaximize = () => {
-    console.log("[UI Action] Maximize window triggered");
-  };
-
   const handleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch((err) => {
@@ -125,8 +117,6 @@ export const ApplicationBar: React.FC<ApplicationBarProps> = ({
     {
       label: "Janela",
       items: [
-        { label: "Minimizar", action: handleMinimize, icon: <Minus size={14} /> },
-        { label: "Maximizar", action: handleMaximize, icon: <Square size={14} /> },
         { label: "Tela Cheia", action: handleFullscreen, shortcut: "F11", icon: <Monitor size={14} /> },
         { label: "", action: () => {}, divider: true },
         { 
@@ -217,18 +207,7 @@ export const ApplicationBar: React.FC<ApplicationBarProps> = ({
       </div>
 
 
-      {/* Right Native-like Window Controls */}
-      <div className="app-window-controls">
-        <button className="app-window-btn" onClick={handleMinimize} title="Minimizar">
-          <Minus size={14} />
-        </button>
-        <button className="app-window-btn" onClick={handleMaximize} title="Maximizar / Restaurar">
-          <Square size={12} />
-        </button>
-        <button className="app-window-btn close" onClick={handleExit} title="Fechar">
-          <X size={14} />
-        </button>
-      </div>
+
 
       {/* About Dialog (Modal Window) */}
       {isAboutOpen && (

@@ -1,27 +1,62 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-:root {
-  /* Colors - Base Theme */
-  --color-bg-app: #000000;
-  --color-bg-sidebar: #121212;
-  --color-bg-surface: #181818;
-  --color-bg-surface-hover: #282828;
-  --color-bg-surface-active: #333333;
+html {
+  /* Cores de Fundo Principais (Baseadas no tema Dark Padrão) */
+  --bg-dark: #000000;
+  --bg-panel: #121212;
+  --bg-surface: #181818;
+  --bg-surface-hover: #282828;
+  --bg-surface-active: #333333;
 
-  /* Colors - Text */
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #a7a7a7;
-  --color-text-tertiary: #535353;
-  --color-text-inverse: #000000;
+  /* Cores de Texto */
+  --text-light: #ffffff;
+  --text-main: #a7a7a7;
+  --text-muted: #535353;
+  --text-inverse: #000000;
 
-  /* Colors - Accent (Dynamic) */
-  --color-accent: #3B82F6; /* Blue modern accent */
-  --color-accent-hover: #60A5FA;
+  /* Cores de Destaque */
+  --accent-primary: #3B82F6;
+  --accent-hover: #60A5FA;
 
-  /* Additional Elements */
-  --color-divider: #282828;
-  --color-scrollbar: #5a5a5a;
-  --color-scrollbar-hover: #a7a7a7;
+  /* Bordas e Divisórias */
+  --border-subtle: #282828;
+  --glass-bg: rgba(18, 18, 18, 0.7);
+
+  /* Barras de Rolagem */
+  --scrollbar: #5a5a5a;
+  --scrollbar-hover: #a7a7a7;
+
+  /* ---------------------------------------------------- */
+  /* ALIAS: Ponte de Compatibilidade com App.css e Legado */
+  /* ---------------------------------------------------- */
+  /* Mapeando variáveis oficiais do themes.md para os nomes consumidos pelo App.css */
+  --bg-base: var(--bg-dark, #0f0f12);
+  --bg-sidebar: var(--bg-panel, #050507);
+  --bg-card: var(--glass-bg, rgba(24, 24, 27, 0.6));
+  --bg-card-hover: var(--glass-bg, rgba(39, 39, 42, 0.8));
+  --bg-active: var(--bg-surface-active, rgba(63, 63, 70, 0.4));
+  --border-color: var(--border-subtle, rgba(63, 63, 70, 0.3));
+  --accent-secondary: var(--accent-hover, #10b981);
+
+  /* Mapeando o legado do próprio index.css (color-bg-app...) */
+  --color-bg-app: var(--bg-base);
+  --color-bg-sidebar: var(--bg-sidebar);
+  --color-bg-surface: var(--bg-card);
+  --color-bg-surface-hover: var(--bg-card-hover);
+  --color-bg-surface-active: var(--bg-active);
+
+  --color-text-primary: var(--text-main);
+  --color-text-secondary: var(--text-main);
+  --color-text-tertiary: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-secondary);
+
+  --color-divider: var(--border-color);
+  
+  --color-scrollbar: var(--scrollbar);
+  --color-scrollbar-hover: var(--scrollbar-hover);
 
   /* Spacing */
   --spacing-xs: 4px;

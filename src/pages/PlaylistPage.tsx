@@ -176,7 +176,7 @@ export const PlaylistPage: React.FC = () => {
       </button>
 
       {/* Header da Playlist */}
-      <div className="hero-banner" style={{ background: "linear-gradient(180deg, rgba(6, 182, 212, 0.15) 0%, rgba(24, 24, 27, 0.3) 100%)", marginTop: "16px" }}>
+      <div className="hero-banner" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--accent-primary) 15%, transparent) 0%, color-mix(in srgb, var(--bg-active) 50%, transparent) 100%)", marginTop: "16px" }}>
         <img
           src={activePlaylist.coverUrl}
           alt={activePlaylist.name}

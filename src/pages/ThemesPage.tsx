@@ -5,10 +5,25 @@ import { useApp } from "../context/AppContext";
 import "./PluginsPage.css";
 
 export const ThemesPage: React.FC = () => {
-  const { installedThemes, uninstallTheme } = useApp();
+  const { installedThemes, uninstallTheme, installThemeFromZip } = useApp();
 
-  const handleImport = () => {
-    alert("Funcionalidade de importar tema (.zip) será integrada via Rust em breve!");
+  const handleImport = async () => {
+    try {
+      const { open } = await import("@tauri-apps/plugin-dialog");
+      const selected = await open({
+        filters: [{ name: "Temas", extensions: ["zip"] }],
+        multiple: false,
+        title: "Selecionar Tema (.zip)",
+      });
+      if (selected) {
+        const path = typeof selected === "string" ? selected : Array.isArray(selected) ? selected[0] : null;
+        if (path) {
+          await installThemeFromZip(path);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao selecionar tema:", err);
+    }
   };
 
   const handleUninstall = (id: string) => {
@@ -18,9 +33,9 @@ export const ThemesPage: React.FC = () => {
   return (
     <div className="plugins-page-container">
       <div className="plugins-header">
-        <h1 className="plugins-title">
+        <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: 0, color: "var(--text-main)", display: "flex", alignItems: "center", gap: "12px" }}>
           <Palette size={28} />
-          Temas
+          Temas Instalados
         </h1>
         <button className="btn-primary" onClick={handleImport} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <Download size={18} />

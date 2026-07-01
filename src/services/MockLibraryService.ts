@@ -6,30 +6,7 @@ export class MockLibraryService implements ILibraryService {
   private state: LibraryState;
   private listeners: Set<(state: LibraryState) => void> = new Set();
 
-  private defaultTracks: Track[] = [
-    {
-      id: "track-default-1",
-      title: "SoundHelix Jam Session 1 (Local)",
-      artist: "SoundHelix Band",
-      album: "Local Songs Folder",
-      duration: 372,
-      url: "/Songs/soundhelix-1.mp3",
-      coverUrl: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&auto=format&fit=crop&q=60",
-      bpm: 110,
-      key: "Am"
-    },
-    {
-      id: "track-default-2",
-      title: "Electronic Chill Vibes (Local)",
-      artist: "SoundHelix Project",
-      album: "Local Songs Folder",
-      duration: 302,
-      url: "/Songs/soundhelix-2.mp3",
-      coverUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=60",
-      bpm: 95,
-      key: "C"
-    }
-  ];
+  private defaultTracks: Track[] = [];
 
   constructor() {
     this.state = {
@@ -40,7 +17,7 @@ export class MockLibraryService implements ILibraryService {
           name: "Favoritas de Prática",
           description: "Músicas para treinar guitarra, baixo e improvisação.",
           coverUrl: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=300&auto=format&fit=crop&q=60",
-          tracks: [this.defaultTracks[0], this.defaultTracks[1]]
+          tracks: []
         }
       ],
       scannedFolders: [

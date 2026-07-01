@@ -12,7 +12,7 @@ export const HomePage: React.FC = () => {
       
       {/* Header Início */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: 0, color: "var(--text-light)", display: "flex", alignItems: "center", gap: "12px" }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: 0, color: "var(--text-main)", display: "flex", alignItems: "center", gap: "12px" }}>
           <Home size={28} />
           Início
         </h1>

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { Track } from "../models/track";
 import { Playlist } from "../models/playlist";
 import { IPlaybackService, PlaybackState } from "../services/IPlaybackService";
@@ -6,6 +7,10 @@ import { ILibraryService, LibraryState } from "../services/ILibraryService";
 import { MockPlaybackService } from "../services/MockPlaybackService";
 import { MockLibraryService } from "../services/MockLibraryService";
 import { configService } from "../services/ConfigService";
+import nebulaManifest from "../themes/Nebula-Purple/manifest.json";
+import pinkManifest from "../themes/Pink/manifest.json";
+import lightManifest from "../themes/Light/manifest.json";
+import darkNeonManifest from "../themes/Dark-Neon/manifest.json";
 
 export interface PluginSetting {
   type: "toggle" | "select" | "text" | "number";
@@ -74,6 +79,7 @@ interface AppContextType {
   uninstallTheme: (id: string) => void;
   setActiveTheme: (id: string) => void;
   updatePluginSetting: (pluginId: string, settingKey: string, value: any) => void;
+  installThemeFromZip: (path: string) => Promise<void>;
 
   // Playback Actions
   play: (track: Track, queue?: Track[]) => void;
@@ -129,7 +135,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     {
       id: "plugin-1",
       name: "Advanced Equalizer",
-      author: "SoundHelix Team",
+      author: "Andersonjuniorz",
       version: "1.0.2",
       settingsSchema: [
         { type: "toggle", key: "enableEq", label: "Habilitar Equalizador", value: true },
@@ -138,8 +144,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     },
     {
       id: "plugin-2",
-      name: "Spotify Integration (BETA)",
-      author: "Revolution Community",
+      name: "TestPlugin",
+      author: "Andersonjuniorz",
       version: "0.9.1",
       settingsSchema: [
         { type: "text", key: "apiKey", label: "API Key", value: "" },
@@ -149,9 +155,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   ]);
 
   const [installedThemes, setInstalledThemes] = useState<Theme[]>([
-    { id: "theme-default", name: "Revolution Default", author: "Core Team", version: "1.0.0" },
-    { id: "theme-1", name: "Midnight Neon", author: "Revolution Community", version: "1.2.0" },
-    { id: "theme-2", name: "Classic Studio", author: "SoundHelix Team", version: "1.0.0" }
+    darkNeonManifest,
+    nebulaManifest,
+    pinkManifest,
+    lightManifest
   ]);
 
   const [activeThemeId, setActiveThemeState] = useState<string>(() => configService.getActiveTheme());
@@ -168,7 +175,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const uninstallTheme = (id: string) => {
     setInstalledThemes(prev => prev.filter(t => t.id !== id));
     if (activeThemeId === id) {
-      setActiveTheme("theme-default");
+      setActiveTheme(darkNeonManifest.id);
+    }
+  };
+
+  const installThemeFromZip = async (path: string) => {
+    try {
+      const { ask, message } = await import("@tauri-apps/plugin-dialog");
+
+      const manifest: Theme = await invoke("read_theme_manifest", { zipPath: path });
+
+      const themeExists = installedThemes.some(t => t.id === manifest.id);
+      if (themeExists) {
+        const confirmed = await ask(`O tema "${manifest.name}" já está instalado. Deseja substituí-lo?`, {
+          title: "Tema já existe",
+          kind: "warning",
+        });
+        if (!confirmed) return;
+      }
+
+      await invoke("extract_theme", { zipPath: path, themeId: manifest.id });
+
+      setInstalledThemes(prev => {
+        const filtered = prev.filter(t => t.id !== manifest.id);
+        return [...filtered, manifest];
+      });
+
+      setActiveTheme(manifest.id);
+
+      await message("Tema importado e aplicado com sucesso!", { title: "Sucesso", kind: "info" });
+    } catch (err: any) {
+      console.error("Erro na importação de tema", err);
+      const { message } = await import("@tauri-apps/plugin-dialog");
+      await message(err.toString(), { title: "Erro na importação", kind: "error" });
     }
   };
 
@@ -177,7 +216,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (plugin.id === pluginId) {
         return {
           ...plugin,
-          settingsSchema: plugin.settingsSchema.map(setting => 
+          settingsSchema: plugin.settingsSchema.map(setting =>
             setting.key === settingKey ? { ...setting, value } : setting
           )
         };
@@ -203,6 +242,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       playbackService.cleanup();
     };
   }, [playbackService, libraryService]);
+
+  useEffect(() => {
+    const loadThemes = async () => {
+      try {
+        const backendThemes: Theme[] = await invoke("get_installed_themes");
+        setInstalledThemes(prev => {
+          const builtinThemes = [darkNeonManifest, nebulaManifest, pinkManifest, lightManifest];
+          const builtinIds = builtinThemes.map(t => t.id);
+          return [...builtinThemes, ...backendThemes.filter(t => !builtinIds.includes(t.id))];
+        });
+      } catch (err) {
+        console.error("Falha ao carregar temas:", err);
+      }
+    };
+    loadThemes();
+  }, []);
+
+  useEffect(() => {
+    const applyThemeCSS = async () => {
+      const existingLink = document.getElementById("dynamic-theme-css");
+      if (existingLink) existingLink.remove();
+
+      const builtinIds = [darkNeonManifest.id, nebulaManifest.id, pinkManifest.id, lightManifest.id];
+      if (builtinIds.includes(activeThemeId)) return;
+
+      try {
+        const cssPath: string = await invoke("get_theme_css_path", { themeId: activeThemeId });
+        const assetUrl = convertFileSrc(cssPath);
+
+        const link = document.createElement("link");
+        link.id = "dynamic-theme-css";
+        link.rel = "stylesheet";
+        link.href = assetUrl;
+        document.head.appendChild(link);
+      } catch (err) {
+        console.error("Erro ao aplicar css do tema:", err);
+      }
+    };
+    applyThemeCSS();
+  }, [activeThemeId]);
 
   // Wrappers de ações de reprodução
   const play = (track: Track, queue?: Track[]) => playbackService.play(track, queue);
@@ -281,12 +360,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // Navigation Actions
         setActiveTab,
         setSelectedPlaylistId,
-        
+
         // Plugins and Themes Actions
         uninstallPlugin,
         uninstallTheme,
         setActiveTheme,
         updatePluginSetting,
+        installThemeFromZip,
 
         // Ações de Reprodução
         play,

@@ -8,7 +8,10 @@ import { PlayerBar } from "./components/PlayerBar/PlayerBar";
 import { ApplicationBar } from "./components/ApplicationBar/ApplicationBar";
 import { applyTheme } from "./utils/ThemeManager";
 import { configService } from "./services/ConfigService";
-import defaultTheme from "./theme.json";
+import nebulaTheme from "./themes/Nebula-Purple/theme.json";
+import pinkTheme from "./themes/Pink/theme.json";
+import lightTheme from "./themes/Light/theme.json";
+import darkNeonTheme from "./themes/Dark-Neon/theme.json";
 import "./App.css";
 
 function AppContent() {
@@ -54,37 +57,23 @@ function AppContent() {
   useEffect(() => {
     const applyActiveTheme = () => {
       console.log(`[Theme Manager] Applying theme active ID: ${activeThemeId}`);
-      if (activeThemeId === "theme-1") {
-        applyTheme({
-          "--bg-base": "#0b0813",
-          "--bg-sidebar": "#030207",
-          "--bg-card": "rgba(30, 20, 50, 0.4)",
-          "--bg-card-hover": "rgba(50, 30, 80, 0.6)",
-          "--bg-active": "rgba(90, 40, 140, 0.4)",
-          "--border-color": "rgba(90, 40, 140, 0.3)",
-          "--accent-primary": "#d946ef",
-          "--accent-secondary": "#8b5cf6",
-          "--text-main": "#fdfaff",
-          "--text-muted": "#c084fc",
-          "--text-light": "#ffffff"
-        });
-      } else if (activeThemeId === "theme-2") {
-        applyTheme({
-          "--bg-base": "#1c1917",
-          "--bg-sidebar": "#0c0a09",
-          "--bg-card": "rgba(44, 40, 36, 0.6)",
-          "--bg-card-hover": "rgba(68, 64, 60, 0.8)",
-          "--bg-active": "rgba(120, 113, 108, 0.4)",
-          "--border-color": "rgba(120, 113, 108, 0.3)",
-          "--accent-primary": "#f59e0b",
-          "--accent-secondary": "#d97706",
-          "--text-main": "#fafaf9",
-          "--text-muted": "#a8a29e",
-          "--text-light": "#ffffff"
-        });
+
+      const nativeThemes: Record<string, any> = {
+        "theme-nebula-purple": nebulaTheme,
+        "theme-pink": pinkTheme,
+        "theme-light": lightTheme,
+        "theme-dark-neon": darkNeonTheme,
+      };
+
+      if (nativeThemes[activeThemeId]) {
+        applyTheme(nativeThemes[activeThemeId]);
       } else {
-        // Fallback to default
-        applyTheme(defaultTheme);
+        // Fallback to custom zip theme
+        // Limpa os estilos inline injetados anteriormente para não sobrescrever o theme.css do zip
+        const root = document.documentElement;
+        Object.keys(nebulaTheme).forEach(key => {
+          root.style.removeProperty(key);
+        });
       }
     };
 
@@ -107,8 +96,8 @@ function AppContent() {
   return (
     <div className="app-container">
       <ApplicationBar showPractice={showPractice} setShowPractice={setShowPractice} />
-      
-      <div 
+
+      <div
         className={`app-layout ${showPractice ? "" : "hide-practice"}`}
         style={{
           "--sidebar-width": isSidebarCompact ? "72px" : "260px",
@@ -121,22 +110,22 @@ function AppContent() {
         {showPractice ? (
           <PracticePanel practiceWidth={practiceWidth} setPracticeWidth={setPracticeWidth} setShowPractice={setShowPractice} />
         ) : (
-          <div 
-             onMouseEnter={() => setShowPractice(true)}
-             style={{
-               position: "fixed",
-               right: 0,
-               top: "32px",
-               bottom: "90px",
-               width: "16px",
-               cursor: "w-resize",
-               zIndex: 100,
-               display: "flex",
-               alignItems: "center",
-               justifyContent: "flex-end",
-               paddingRight: "2px"
-             }}
-             title="Puxar Modo de Treino"
+          <div
+            onMouseEnter={() => setShowPractice(true)}
+            style={{
+              position: "fixed",
+              right: 0,
+              top: "32px",
+              bottom: "90px",
+              width: "16px",
+              cursor: "w-resize",
+              zIndex: 100,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              paddingRight: "2px"
+            }}
+            title="Puxar Modo de Treino"
           >
             <div style={{
               width: "4px",

@@ -5,7 +5,6 @@
 .practice-panel {
   grid-area: practice;
   background-color: var(--bg-sidebar);
-  border-left: 1px solid var(--border-color);
   padding: 20px;
   overflow-y: auto;
   display: flex;

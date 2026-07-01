@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import { Settings, Search } from "lucide-react";
-import { open } from "@tauri-apps/plugin-dialog";
+import { open, message } from "@tauri-apps/plugin-dialog";
 
 export const SettingsPage: React.FC = () => {
   const {
@@ -13,7 +13,8 @@ export const SettingsPage: React.FC = () => {
     installedThemes,
     activeThemeId,
     setActiveTheme,
-    updatePluginSetting
+    updatePluginSetting,
+    installThemeFromZip
   } = useApp();
   const [tempPath, setTempPath] = useState(localDirectoryPath);
   const [settingsSearchQuery, setSettingsSearchQuery] = useState("");
@@ -35,7 +36,7 @@ export const SettingsPage: React.FC = () => {
         if (path) {
           setTempPath(path);
           await setLocalDirectoryPath(path);
-          setActiveTab("scanner");
+          await message("Caminho atualizado com sucesso.", { title: "Configurações", kind: "info" });
         }
       }
     } catch (err) {
@@ -47,7 +48,25 @@ export const SettingsPage: React.FC = () => {
     const defaultPath = "Songs";
     setTempPath(defaultPath);
     await setLocalDirectoryPath(defaultPath);
-    setActiveTab("scanner");
+    await message("Caminho redefinido com sucesso.", { title: "Configurações", kind: "info" });
+  };
+
+  const handleImportTheme = async () => {
+    try {
+      const selected = await open({
+        filters: [{ name: "Temas", extensions: ["zip"] }],
+        multiple: false,
+        title: "Selecionar Tema (.zip)",
+      });
+      if (selected) {
+        const path = typeof selected === "string" ? selected : Array.isArray(selected) ? selected[0] : null;
+        if (path) {
+          await installThemeFromZip(path);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao selecionar tema via Tauri Dialog:", err);
+    }
   };
 
   return (
@@ -55,7 +74,7 @@ export const SettingsPage: React.FC = () => {
 
       {/* Header das Configurações */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: 0, color: "var(--text-light)", display: "flex", alignItems: "center", gap: "12px" }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: 0, color: "var(--text-main)", display: "flex", alignItems: "center", gap: "12px" }}>
           <Settings size={28} />
           Configurações
         </h1>
@@ -145,18 +164,27 @@ export const SettingsPage: React.FC = () => {
               <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
                 Selecione qual dos temas instalados você deseja aplicar à interface do Revolution.
               </span>
-              <select
-                className="scanner-input"
-                value={activeThemeId}
-                onChange={(e) => setActiveTheme(e.target.value)}
-                style={{ width: "100%", maxWidth: "300px", marginTop: "4px" }}
-              >
-                {installedThemes.map(theme => (
-                  <option key={theme.id} value={theme.id}>
-                    {theme.name} (v{theme.version})
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
+                <select
+                  className="scanner-input"
+                  value={activeThemeId}
+                  onChange={(e) => setActiveTheme(e.target.value)}
+                  style={{ width: "100%", maxWidth: "300px" }}
+                >
+                  {installedThemes.map(theme => (
+                    <option key={theme.id} value={theme.id}>
+                      {theme.name} (v{theme.version})
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleImportTheme}
+                  className="btn-primary"
+                  style={{ whiteSpace: "nowrap" }}
+                >
+                  Importar Tema (.zip)
+                </button>
+              </div>
             </div>
           )}
 
