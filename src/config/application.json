@@ -1,0 +1,13 @@
+{
+  "name": "Revolution Player",
+  "version": "0.0.1",
+  "description": "Um player de áudio local premium e moderno com recursos de prática.",
+  "icons": {
+    "app": "R"
+  },
+  "activeTheme": "theme-default",
+  "plugins": [
+    { "id": "plugin-1", "enabled": true },
+    { "id": "plugin-2", "enabled": true }
+  ]
+}

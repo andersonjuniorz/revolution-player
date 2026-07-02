@@ -1,0 +1,16 @@
+{
+  "--bg-base": "#ffe6f2",
+  "--bg-active": "#ffb3d9",
+  "--bg-card": "#ff80bf",
+  "--bg-sidebar": "#ff4d94",
+  "--bg-card-hover": "#ff66a3",
+  "--text-light": "#ffffff",
+  "--text-main": "#2b0d1d",
+  "--text-muted": "#632545",
+  "--text-inverse": "#ffffff",
+  "--accent-primary": "#e6005c",
+  "--accent-secondary": "#ff1a75",
+  "--border-color": "#ff3385",
+  "--scrollbar": "#ff80bf",
+  "--scrollbar-hover": "#ff4d94"
+}

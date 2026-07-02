@@ -1,0 +1,10 @@
+.main-content {
+  grid-area: main;
+  background: linear-gradient(180deg, var(--bg-active) 0%, var(--bg-base) 100%);
+  padding: 30px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  min-width: 0; /* allows shrinking in grid */
+}

@@ -1,0 +1,13 @@
+{
+  "--bg-base": "#0b0813",
+  "--bg-sidebar": "#030207",
+  "--bg-card": "rgba(30, 20, 50, 0.4)",
+  "--bg-card-hover": "rgba(50, 30, 80, 0.6)",
+  "--bg-active": "rgba(90, 40, 140, 0.4)",
+  "--border-color": "rgba(90, 40, 140, 0.3)",
+  "--accent-primary": "#d946ef",
+  "--accent-secondary": "#8b5cf6",
+  "--text-main": "#fdfaff",
+  "--text-muted": "#c084fc",
+  "--text-light": "#ffffff"
+}
