@@ -15,7 +15,7 @@ pub fn create_tables(conn: &Connection) -> rusqlite::Result<()> {
         )",
         (),
     )?;
-    
+
     // Podemos adicionar mais tabelas no futuro (ex: playlists, relação track-playlist, etc.)
 
     Ok(())

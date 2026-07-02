@@ -1,5 +1,5 @@
-use rusqlite::{params, Connection, Result};
 use crate::models::Track;
+use rusqlite::{params, Connection, Result};
 
 pub struct TrackRepository<'a> {
     conn: &'a Connection,

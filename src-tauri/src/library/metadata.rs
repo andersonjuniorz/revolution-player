@@ -1,8 +1,8 @@
-use std::path::Path;
-use lofty::prelude::*;
 use crate::models::Track;
+use lofty::prelude::*;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use std::path::Path;
 
 pub trait MetadataExtractor {
     fn extract(&self, file_path: &Path) -> Track;
@@ -13,23 +13,27 @@ pub struct LoftyMetadataExtractor;
 impl MetadataExtractor for LoftyMetadataExtractor {
     fn extract(&self, file_path: &Path) -> Track {
         let url = file_path.to_string_lossy().to_string();
-        
+
         let mut hasher = DefaultHasher::new();
         url.hash(&mut hasher);
         let id = format!("local-{}", hasher.finish());
 
-        let filename = file_path.file_stem().unwrap_or_default().to_string_lossy().to_string();
-        
+        let filename = file_path
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
+
         // Defaults
         let mut title = filename.clone();
         let mut artist = "Artista Desconhecido".to_string();
         let mut album = "Álbum Desconhecido".to_string();
         let mut duration = 0.0;
-        
+
         // Tentativa de leitura com lofty
         if let Ok(tagged_file) = lofty::read_from_path(file_path) {
             duration = tagged_file.properties().duration().as_secs_f64();
-            
+
             if let Some(tag) = tagged_file.primary_tag() {
                 if let Some(t) = tag.title() {
                     title = t.to_string();
