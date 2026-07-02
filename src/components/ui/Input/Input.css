@@ -1,0 +1,41 @@
+.ui-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ui-input-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ui-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ui-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent);
+  background: var(--color-bg-surface-active);
+}
+
+.ui-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.ui-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

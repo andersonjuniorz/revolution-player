@@ -1,5 +1,6 @@
 import { Track } from "../models/track";
 import { Playlist } from "../models/playlist";
+import i18n from "../i18n/config";
 import { ILibraryService, LibraryState } from "./ILibraryService";
 
 export class MockLibraryService implements ILibraryService {
@@ -13,16 +14,15 @@ export class MockLibraryService implements ILibraryService {
       tracks: [...this.defaultTracks],
       playlists: [
         {
-          id: "playlist-1",
-          name: "Favoritas de Prática",
-          description: "Músicas para treinar guitarra, baixo e improvisação.",
-          coverUrl: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=300&auto=format&fit=crop&q=60",
+          id: "favorites",
+          name: "Favoritas",
+          description: i18n.t("ui.favoritesDesc"),
+          coverUrl:
+            "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=300&auto=format&fit=crop&q=60",
           tracks: []
         }
       ],
-      scannedFolders: [
-        "Songs"
-      ],
+      scannedFolders: ["Songs"],
       isScanning: false,
       scanProgress: 0,
       localDirectoryName: "Pasta Padrão: Songs/",
@@ -47,7 +47,8 @@ export class MockLibraryService implements ILibraryService {
       id: `playlist-${Date.now()}`,
       name,
       description,
-      coverUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&auto=format&fit=crop&q=60",
+      coverUrl:
+        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&auto=format&fit=crop&q=60",
       tracks: []
     };
 
@@ -56,7 +57,11 @@ export class MockLibraryService implements ILibraryService {
     return newPlaylist;
   }
 
-  public async updatePlaylist(playlistId: string, name: string, description?: string): Promise<void> {
+  public async updatePlaylist(
+    playlistId: string,
+    name: string,
+    description?: string
+  ): Promise<void> {
     const playlist = this.state.playlists.find((p) => p.id === playlistId);
     if (playlist) {
       playlist.name = name;
@@ -68,7 +73,7 @@ export class MockLibraryService implements ILibraryService {
   }
 
   public async deletePlaylist(playlistId: string): Promise<void> {
-    this.state.playlists = this.state.playlists.filter(p => p.id !== playlistId);
+    this.state.playlists = this.state.playlists.filter((p) => p.id !== playlistId);
     this.notify();
   }
 
@@ -119,7 +124,8 @@ export class MockLibraryService implements ILibraryService {
         album: "Local Sessions",
         duration: 242,
         url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-        coverUrl: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=300&auto=format&fit=crop&q=60",
+        coverUrl:
+          "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=300&auto=format&fit=crop&q=60",
         bpm: 120,
         key: "Em"
       }
@@ -161,7 +167,7 @@ export class MockLibraryService implements ILibraryService {
       const file = audioFiles[i];
       let artist = "Arquivo Local";
       let title = file.name.replace(/\.[^/.]+$/, "");
-      
+
       if (title.includes("-")) {
         const parts = title.split("-");
         artist = parts[0].trim();
@@ -180,7 +186,8 @@ export class MockLibraryService implements ILibraryService {
         album: folderName,
         duration: 180,
         url: URL.createObjectURL(file),
-        coverUrl: "https://images.unsplash.com/photo-1487180142328-0c4e37023af5?w=300&auto=format&fit=crop&q=60",
+        coverUrl:
+          "https://images.unsplash.com/photo-1487180142328-0c4e37023af5?w=300&auto=format&fit=crop&q=60",
         bpm: randomBpm,
         key: randomKey
       });
@@ -254,6 +261,13 @@ export class MockLibraryService implements ILibraryService {
     return this.state.tracks;
   }
 
+  public async refreshLocalDirectory(): Promise<Track[]> {
+    if (this.state.localDirectoryPath && this.state.localDirectoryPath !== "Songs") {
+      return this.setLocalDirectoryPath(this.state.localDirectoryPath);
+    }
+    return this.state.tracks;
+  }
+
   public async fetchTracksMetadata(trackIds: string[]): Promise<Track[]> {
     const selectedTracks = this.state.tracks.filter((t) => trackIds.includes(t.id));
     if (selectedTracks.length === 0) return this.state.tracks;
@@ -275,7 +289,7 @@ export class MockLibraryService implements ILibraryService {
         const track = selectedTracks[i];
         try {
           const [updatedTrack] = await invoke<Track[]>("fetch_tracks_metadata", {
-            tracks: [track],
+            tracks: [track]
           });
           if (updatedTrack) {
             // Atualiza a faixa correspondente no estado da biblioteca
@@ -314,4 +328,3 @@ export class MockLibraryService implements ILibraryService {
     return { ...this.state };
   }
 }
-

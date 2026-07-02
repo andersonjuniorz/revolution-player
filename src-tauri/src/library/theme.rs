@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
-use std::io::{Read, BufReader};
+use std::io::{BufReader, Read};
 use tauri::Manager;
 use zip::ZipArchive;
 
@@ -17,32 +17,47 @@ pub struct Theme {
 pub fn read_theme_manifest(zip_path: String) -> Result<Theme, String> {
     let file = File::open(&zip_path).map_err(|e| format!("Falha ao abrir arquivo zip: {}", e))?;
     let reader = BufReader::new(file);
-    let mut archive = ZipArchive::new(reader).map_err(|e| format!("Arquivo zip inválido: {}", e))?;
+    let mut archive =
+        ZipArchive::new(reader).map_err(|e| format!("Arquivo zip inválido: {}", e))?;
 
-    let mut manifest_file = archive.by_name("manifest.json").map_err(|_| "manifest.json não encontrado no zip".to_string())?;
-    
+    let mut manifest_file = archive
+        .by_name("manifest.json")
+        .map_err(|_| "manifest.json não encontrado no zip".to_string())?;
+
     let mut contents = String::new();
-    manifest_file.read_to_string(&mut contents).map_err(|e| format!("Erro ao ler manifest.json: {}", e))?;
+    manifest_file
+        .read_to_string(&mut contents)
+        .map_err(|e| format!("Erro ao ler manifest.json: {}", e))?;
 
-    let theme: Theme = serde_json::from_str(&contents).map_err(|e| format!("manifest.json inválido: {}", e))?;
+    let theme: Theme =
+        serde_json::from_str(&contents).map_err(|e| format!("manifest.json inválido: {}", e))?;
     Ok(theme)
 }
 
 #[tauri::command]
-pub fn extract_theme(zip_path: String, theme_id: String, app: tauri::AppHandle) -> Result<(), String> {
-    let app_dir = app.path().app_data_dir().map_err(|_| "Não foi possível obter diretório de dados".to_string())?;
+pub fn extract_theme(
+    zip_path: String,
+    theme_id: String,
+    app: tauri::AppHandle,
+) -> Result<(), String> {
+    let app_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| "Não foi possível obter diretório de dados".to_string())?;
     let themes_dir = app_dir.join("themes").join(&theme_id);
 
     // Se o diretório já existe, vamos limpá-lo (sobrescrever)
     if themes_dir.exists() {
-        fs::remove_dir_all(&themes_dir).map_err(|e| format!("Erro ao remover tema existente: {}", e))?;
+        fs::remove_dir_all(&themes_dir)
+            .map_err(|e| format!("Erro ao remover tema existente: {}", e))?;
     }
-    
+
     fs::create_dir_all(&themes_dir).map_err(|e| format!("Erro ao criar pasta do tema: {}", e))?;
 
     let file = File::open(&zip_path).map_err(|e| format!("Falha ao abrir arquivo zip: {}", e))?;
     let reader = BufReader::new(file);
-    let mut archive = ZipArchive::new(reader).map_err(|e| format!("Arquivo zip inválido: {}", e))?;
+    let mut archive =
+        ZipArchive::new(reader).map_err(|e| format!("Arquivo zip inválido: {}", e))?;
 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).unwrap();
@@ -52,7 +67,8 @@ pub fn extract_theme(zip_path: String, theme_id: String, app: tauri::AppHandle) 
         };
 
         // Queremos apenas manifest.json e theme.css na raiz
-        if outpath.to_string_lossy() == "manifest.json" || outpath.to_string_lossy() == "theme.css" {
+        if outpath.to_string_lossy() == "manifest.json" || outpath.to_string_lossy() == "theme.css"
+        {
             let mut outfile = File::create(themes_dir.join(outpath)).unwrap();
             std::io::copy(&mut file, &mut outfile).unwrap();
         }
@@ -62,8 +78,26 @@ pub fn extract_theme(zip_path: String, theme_id: String, app: tauri::AppHandle) 
 }
 
 #[tauri::command]
+pub fn uninstall_theme(theme_id: String, app: tauri::AppHandle) -> Result<(), String> {
+    let app_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| "Não foi possível obter diretório de dados".to_string())?;
+    let themes_dir = app_dir.join("themes").join(&theme_id);
+
+    if themes_dir.exists() {
+        fs::remove_dir_all(&themes_dir).map_err(|e| format!("Erro ao desinstalar tema: {}", e))?;
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
 pub fn get_installed_themes(app: tauri::AppHandle) -> Result<Vec<Theme>, String> {
-    let app_dir = app.path().app_data_dir().map_err(|_| "Não foi possível obter diretório de dados".to_string())?;
+    let app_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| "Não foi possível obter diretório de dados".to_string())?;
     let themes_dir = app_dir.join("themes");
 
     let mut themes = Vec::new();
@@ -76,7 +110,8 @@ pub fn get_installed_themes(app: tauri::AppHandle) -> Result<Vec<Theme>, String>
         return Ok(themes);
     }
 
-    let entries = fs::read_dir(themes_dir).map_err(|e| format!("Erro ao ler diretório de temas: {}", e))?;
+    let entries =
+        fs::read_dir(themes_dir).map_err(|e| format!("Erro ao ler diretório de temas: {}", e))?;
 
     for entry in entries.filter_map(|e| e.ok()) {
         let path = entry.path();
@@ -97,9 +132,12 @@ pub fn get_installed_themes(app: tauri::AppHandle) -> Result<Vec<Theme>, String>
 
 #[tauri::command]
 pub fn get_theme_css_path(theme_id: String, app: tauri::AppHandle) -> Result<String, String> {
-    let app_dir = app.path().app_data_dir().map_err(|_| "Não foi possível obter diretório de dados".to_string())?;
+    let app_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| "Não foi possível obter diretório de dados".to_string())?;
     let css_path = app_dir.join("themes").join(&theme_id).join("theme.css");
-    
+
     if css_path.exists() {
         Ok(css_path.to_string_lossy().to_string())
     } else {

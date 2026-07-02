@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Layers, PanelRightClose } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { LoopSection } from "./LoopSection";
 import { SpeedSection } from "./SpeedSection";
 import { PitchSection } from "./PitchSection";
@@ -12,11 +13,12 @@ interface PracticePanelProps {
   setShowPractice: (show: boolean) => void;
 }
 
-export const PracticePanel: React.FC<PracticePanelProps> = ({ 
-  practiceWidth, 
-  setPracticeWidth, 
-  setShowPractice 
+export const PracticePanel: React.FC<PracticePanelProps> = ({
+  practiceWidth,
+  setPracticeWidth,
+  setShowPractice
 }) => {
+  const { t } = useTranslation();
   const [isResizing, setIsResizing] = useState(false);
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
@@ -37,8 +39,8 @@ export const PracticePanel: React.FC<PracticePanelProps> = ({
     setIsResizing(true);
     startXRef.current = e.clientX;
     startWidthRef.current = practiceWidth;
-    
-    document.querySelector('.app-layout')?.classList.add('is-dragging');
+
+    document.querySelector(".app-layout")?.classList.add("is-dragging");
     e.preventDefault(); // prevent text selection
   };
 
@@ -47,17 +49,17 @@ export const PracticePanel: React.FC<PracticePanelProps> = ({
       if (!isResizing) return;
       const diff = startXRef.current - e.clientX;
       let newWidth = startWidthRef.current + diff;
-      
-      if (newWidth < 220) newWidth = 220; 
+
+      if (newWidth < 220) newWidth = 220;
       if (newWidth > 450) newWidth = 450;
-      
+
       setPracticeWidth(newWidth);
     };
 
     const handleMouseUp = () => {
       if (isResizing) {
         setIsResizing(false);
-        document.querySelector('.app-layout')?.classList.remove('is-dragging');
+        document.querySelector(".app-layout")?.classList.remove("is-dragging");
       }
     };
 
@@ -65,7 +67,7 @@ export const PracticePanel: React.FC<PracticePanelProps> = ({
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
     }
-    
+
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
@@ -75,14 +77,14 @@ export const PracticePanel: React.FC<PracticePanelProps> = ({
   // Drag and Drop Logic
   const handleSort = () => {
     if (dragItem.current === null || dragOverItem.current === null) return;
-    
+
     const _sectionOrder = [...sectionOrder];
     const draggedItemContent = _sectionOrder.splice(dragItem.current, 1)[0];
     _sectionOrder.splice(dragOverItem.current, 0, draggedItemContent);
-    
+
     dragItem.current = null;
     dragOverItem.current = null;
-    
+
     setSectionOrder(_sectionOrder);
     localStorage.setItem("practice_panel_order", JSON.stringify(_sectionOrder));
   };
@@ -90,18 +92,23 @@ export const PracticePanel: React.FC<PracticePanelProps> = ({
   // Mapeamento dos componentes
   const renderSection = (id: string) => {
     switch (id) {
-      case "loop": return <LoopSection key="loop" />;
-      case "speed": return <SpeedSection key="speed" />;
-      case "pitch": return <PitchSection key="pitch" />;
-      case "presets": return <PresetsSection key="presets" />;
-      default: return null;
+      case "loop":
+        return <LoopSection key="loop" />;
+      case "speed":
+        return <SpeedSection key="speed" />;
+      case "pitch":
+        return <PitchSection key="pitch" />;
+      case "presets":
+        return <PresetsSection key="presets" />;
+      default:
+        return null;
     }
   };
 
   return (
     <aside className="practice-panel" style={{ position: "relative" }}>
       {/* Alça de Resizer */}
-      <div 
+      <div
         onMouseDown={handleMouseDown}
         style={{
           position: "absolute",
@@ -126,29 +133,29 @@ export const PracticePanel: React.FC<PracticePanelProps> = ({
       <div className="practice-header">
         <h3 className="practice-title">
           <Layers size={18} className="logo-text" />
-          <span>Modo de Treino</span>
+          <span>{t("practice.title")}</span>
         </h3>
-        
+
         <div style={{ display: "flex", gap: "8px" }}>
-          <button 
-            className="btn-transport" 
+          <button
+            className="btn-transport"
             onClick={() => setIsEditing(!isEditing)}
-            title="Editar Menus"
-            style={{ 
-              padding: "4px 8px", 
-              background: isEditing ? "var(--accent-primary)" : "rgba(255,255,255,0.05)", 
+            title={t("practice.editMenus")}
+            style={{
+              padding: "4px 8px",
+              background: isEditing ? "var(--accent-primary)" : "rgba(255,255,255,0.05)",
               borderRadius: "6px",
               fontSize: "0.75rem",
               color: isEditing ? "var(--text-light)" : "var(--text-main)"
             }}
           >
-            {isEditing ? "Concluído" : "Editar"}
+            {isEditing ? t("practice.done") : t("practice.edit")}
           </button>
-          
-          <button 
-            className="btn-transport" 
+
+          <button
+            className="btn-transport"
             onClick={() => setShowPractice(false)}
-            title="Esconder Painel"
+            title={t("practice.hidePanel")}
             style={{ padding: "4px", background: "rgba(255,255,255,0.05)", borderRadius: "6px" }}
           >
             <PanelRightClose size={16} />
@@ -158,7 +165,7 @@ export const PracticePanel: React.FC<PracticePanelProps> = ({
 
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         {sectionOrder.map((sectionId, index) => (
-          <div 
+          <div
             key={sectionId}
             draggable={isEditing}
             onDragStart={() => (dragItem.current = index)}

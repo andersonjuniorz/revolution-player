@@ -11,6 +11,7 @@ import nebulaManifest from "../themes/Nebula-Purple/manifest.json";
 import pinkManifest from "../themes/Pink/manifest.json";
 import lightManifest from "../themes/Light/manifest.json";
 import darkNeonManifest from "../themes/Dark-Neon/manifest.json";
+import { BUILT_IN_THEME_IDS } from "../constants/themes";
 
 export interface PluginSetting {
   type: "toggle" | "select" | "text" | "number";
@@ -62,21 +63,28 @@ interface AppContextType {
   localDirectoryPath: string;
 
   // Navigation States
-  activeTab: "home" | "search" | "playlists" | "scanner" | "settings" | "plugins" | "themes";
+  activeTab:
+    "home" | "search" | "playlists" | "scanner" | "settings" | "plugins" | "themes" | string;
   selectedPlaylistId: string | null;
 
   // Navigation Actions
-  setActiveTab: (tab: "home" | "search" | "playlists" | "scanner" | "settings" | "plugins" | "themes") => void;
+  setActiveTab: (
+    tab: "home" | "search" | "playlists" | "scanner" | "settings" | "plugins" | "themes" | string
+  ) => void;
   setSelectedPlaylistId: (id: string | null) => void;
 
   // Plugins and Themes States
   installedPlugins: Plugin[];
+  pluginStates: Record<string, boolean>;
   installedThemes: Theme[];
   activeThemeId: string;
 
   // Plugins and Themes Actions
+  installPlugin: (plugin: Plugin) => void;
+  installPluginFromZip: (path: string) => Promise<void>;
   uninstallPlugin: (id: string) => void;
-  uninstallTheme: (id: string) => void;
+  togglePlugin: (id: string, enabled: boolean) => void;
+  uninstallTheme: (id: string) => Promise<void>;
   setActiveTheme: (id: string) => void;
   updatePluginSetting: (pluginId: string, settingKey: string, value: any) => void;
   installThemeFromZip: (path: string) => Promise<void>;
@@ -109,6 +117,7 @@ interface AppContextType {
   removeScannedFolder: (path: string) => Promise<void>;
   scanLocalFiles: (files: File[], folderName: string) => Promise<Track[]>;
   setLocalDirectoryPath: (path: string) => Promise<Track[]>;
+  refreshLocalDirectory: () => Promise<Track[]>;
   fetchTracksMetadata: (trackIds: string[]) => Promise<Track[]>;
 }
 
@@ -127,32 +136,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [libraryState, setLibraryState] = useState<LibraryState>(libraryService.getState());
 
   // Estados extras de navegação do frontend
-  const [activeTab, setActiveTab] = useState<"home" | "search" | "playlists" | "scanner" | "settings" | "plugins" | "themes">("home");
+  const [activeTab, setActiveTab] = useState<
+    "home" | "search" | "playlists" | "scanner" | "settings" | "plugins" | "themes" | string
+  >("home");
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
 
-  // Estados de Plugins e Temas (Mock)
-  const [installedPlugins, setInstalledPlugins] = useState<Plugin[]>([
-    {
-      id: "plugin-1",
-      name: "Advanced Equalizer",
-      author: "Andersonjuniorz",
-      version: "1.0.2",
-      settingsSchema: [
-        { type: "toggle", key: "enableEq", label: "Habilitar Equalizador", value: true },
-        { type: "select", key: "preset", label: "Preset Padrão", options: ["Flat", "Pop", "Rock", "Jazz", "Classical"], value: "Pop" }
-      ]
-    },
-    {
-      id: "plugin-2",
-      name: "TestPlugin",
-      author: "Andersonjuniorz",
-      version: "0.9.1",
-      settingsSchema: [
-        { type: "text", key: "apiKey", label: "API Key", value: "" },
-        { type: "toggle", key: "syncPlaylists", label: "Sincronizar Playlists", value: false }
-      ]
-    }
-  ]);
+  const [installedPlugins, setInstalledPlugins] = useState<Plugin[]>([]);
+  const [pluginStates, setPluginStates] = useState<Record<string, boolean>>(() => {
+    const states: Record<string, boolean> = {};
+    configService.getPlugins().forEach((p) => {
+      states[p.id] = p.enabled;
+    });
+    return states;
+  });
 
   const [installedThemes, setInstalledThemes] = useState<Theme[]>([
     darkNeonManifest,
@@ -161,21 +157,81 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     lightManifest
   ]);
 
-  const [activeThemeId, setActiveThemeState] = useState<string>(() => configService.getActiveTheme());
+  const [activeThemeId, setActiveThemeState] = useState<string>(() =>
+    configService.getActiveTheme()
+  );
 
   const setActiveTheme = (id: string) => {
     setActiveThemeState(id);
     configService.setActiveTheme(id);
   };
 
-  const uninstallPlugin = (id: string) => {
-    setInstalledPlugins(prev => prev.filter(p => p.id !== id));
+  const installPluginFromZip = async (path: string) => {
+    try {
+      const { ask, message } = await import("@tauri-apps/plugin-dialog");
+
+      const manifest: Plugin = await invoke("read_plugin_manifest", { zipPath: path });
+
+      const pluginExists = installedPlugins.some((p) => p.id === manifest.id);
+      if (pluginExists) {
+        const confirmed = await ask(
+          `O plugin "${manifest.name}" já está instalado. Deseja substituí-lo?`,
+          {
+            title: "Plugin já existe",
+            kind: "warning"
+          }
+        );
+        if (!confirmed) return;
+      }
+
+      await invoke("extract_plugin", { zipPath: path, pluginId: manifest.id });
+
+      setInstalledPlugins((prev) => {
+        const filtered = prev.filter((p) => p.id !== manifest.id);
+        return [...filtered, manifest];
+      });
+
+      setActiveTab(`plugin-${manifest.id}`);
+      await message("Plugin importado e carregado com sucesso!", {
+        title: "Sucesso",
+        kind: "info"
+      });
+    } catch (err: any) {
+      console.error("Erro na importação de plugin", err);
+      const { message } = await import("@tauri-apps/plugin-dialog");
+      await message(err.toString(), { title: "Erro na importação", kind: "error" });
+    }
   };
 
-  const uninstallTheme = (id: string) => {
-    setInstalledThemes(prev => prev.filter(t => t.id !== id));
-    if (activeThemeId === id) {
-      setActiveTheme(darkNeonManifest.id);
+  const installPlugin = (plugin: Plugin) => {
+    setInstalledPlugins((prev) => {
+      if (prev.find((p) => p.id === plugin.id)) return prev;
+      return [...prev, plugin];
+    });
+  };
+
+  const uninstallPlugin = (id: string) => {
+    setInstalledPlugins((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const togglePlugin = (id: string, enabled: boolean) => {
+    configService.setPluginEnabled(id, enabled);
+    setPluginStates((prev) => ({ ...prev, [id]: enabled }));
+  };
+
+  const uninstallTheme = async (id: string) => {
+    try {
+      if (BUILT_IN_THEME_IDS.includes(id)) {
+        console.warn("Não é possível desinstalar temas nativos do sistema.");
+        return;
+      }
+      await invoke("uninstall_theme", { themeId: id });
+      setInstalledThemes((prev) => prev.filter((t) => t.id !== id));
+      if (activeThemeId === id) {
+        setActiveTheme(darkNeonManifest.id);
+      }
+    } catch (err) {
+      console.error("Erro ao desinstalar tema:", err);
     }
   };
 
@@ -185,19 +241,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const manifest: Theme = await invoke("read_theme_manifest", { zipPath: path });
 
-      const themeExists = installedThemes.some(t => t.id === manifest.id);
+      const themeExists = installedThemes.some((t) => t.id === manifest.id);
       if (themeExists) {
-        const confirmed = await ask(`O tema "${manifest.name}" já está instalado. Deseja substituí-lo?`, {
-          title: "Tema já existe",
-          kind: "warning",
-        });
+        const confirmed = await ask(
+          `O tema "${manifest.name}" já está instalado. Deseja substituí-lo?`,
+          {
+            title: "Tema já existe",
+            kind: "warning"
+          }
+        );
         if (!confirmed) return;
       }
 
       await invoke("extract_theme", { zipPath: path, themeId: manifest.id });
 
-      setInstalledThemes(prev => {
-        const filtered = prev.filter(t => t.id !== manifest.id);
+      setInstalledThemes((prev) => {
+        const filtered = prev.filter((t) => t.id !== manifest.id);
         return [...filtered, manifest];
       });
 
@@ -212,17 +271,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updatePluginSetting = (pluginId: string, settingKey: string, value: any) => {
-    setInstalledPlugins(prev => prev.map(plugin => {
-      if (plugin.id === pluginId) {
-        return {
-          ...plugin,
-          settingsSchema: plugin.settingsSchema.map(setting =>
-            setting.key === settingKey ? { ...setting, value } : setting
-          )
-        };
-      }
-      return plugin;
-    }));
+    setInstalledPlugins((prev) =>
+      prev.map((plugin) => {
+        if (plugin.id === pluginId) {
+          return {
+            ...plugin,
+            settingsSchema: plugin.settingsSchema.map((setting) =>
+              setting.key === settingKey ? { ...setting, value } : setting
+            )
+          };
+        }
+        return plugin;
+      })
+    );
   };
 
   useEffect(() => {
@@ -247,16 +308,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const loadThemes = async () => {
       try {
         const backendThemes: Theme[] = await invoke("get_installed_themes");
-        setInstalledThemes(prev => {
+        setInstalledThemes(() => {
           const builtinThemes = [darkNeonManifest, nebulaManifest, pinkManifest, lightManifest];
-          const builtinIds = builtinThemes.map(t => t.id);
-          return [...builtinThemes, ...backendThemes.filter(t => !builtinIds.includes(t.id))];
+          const builtinIds = builtinThemes.map((t) => t.id);
+          return [...builtinThemes, ...backendThemes.filter((t) => !builtinIds.includes(t.id))];
         });
       } catch (err) {
         console.error("Falha ao carregar temas:", err);
       }
     };
+
+    const loadPlugins = async () => {
+      try {
+        const backendPlugins: Plugin[] = await invoke("get_installed_plugins");
+        setInstalledPlugins(backendPlugins);
+      } catch (err) {
+        console.error("Falha ao carregar plugins:", err);
+      }
+    };
+
     loadThemes();
+    loadPlugins();
   }, []);
 
   useEffect(() => {
@@ -264,8 +336,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const existingLink = document.getElementById("dynamic-theme-css");
       if (existingLink) existingLink.remove();
 
-      const builtinIds = [darkNeonManifest.id, nebulaManifest.id, pinkManifest.id, lightManifest.id];
-      if (builtinIds.includes(activeThemeId)) return;
+      if (BUILT_IN_THEME_IDS.includes(activeThemeId)) return;
 
       try {
         const cssPath: string = await invoke("get_theme_css_path", { themeId: activeThemeId });
@@ -293,7 +364,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const toggleMute = () => playbackService.toggleMute();
   const setPlaybackRate = (rate: number) => playbackService.setPlaybackRate(rate);
   const setPitch = (semitones: number) => playbackService.setPitch(semitones);
-  const setABLoop = (start: number | null, end: number | null) => playbackService.setABLoop(start, end);
+  const setABLoop = (start: number | null, end: number | null) =>
+    playbackService.setABLoop(start, end);
   const clearABLoop = () => playbackService.clearABLoop();
   const toggleRepeatMode = () => playbackService.toggleRepeatMode();
   const toggleShuffle = () => playbackService.toggleShuffle();
@@ -338,6 +410,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return await libraryService.setLocalDirectoryPath(path);
   };
 
+  const refreshLocalDirectory = async () => {
+    return await libraryService.refreshLocalDirectory();
+  };
+
   const fetchTracksMetadata = async (trackIds: string[]) => {
     return await libraryService.fetchTracksMetadata(trackIds);
   };
@@ -354,6 +430,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         // Plugins and Themes States
         installedPlugins,
+        pluginStates,
         installedThemes,
         activeThemeId,
 
@@ -362,7 +439,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedPlaylistId,
 
         // Plugins and Themes Actions
+        installPlugin,
+        installPluginFromZip,
         uninstallPlugin,
+        togglePlugin,
         uninstallTheme,
         setActiveTheme,
         updatePluginSetting,
@@ -396,7 +476,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         removeScannedFolder,
         scanLocalFiles,
         setLocalDirectoryPath,
-        fetchTracksMetadata,
+        refreshLocalDirectory,
+        fetchTracksMetadata
       }}
     >
       {children}

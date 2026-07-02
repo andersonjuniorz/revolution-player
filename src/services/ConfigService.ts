@@ -9,6 +9,7 @@ export interface ApplicationConfig {
     [key: string]: string;
   };
   activeTheme: string;
+  language: string;
   plugins: { id: string; enabled: boolean }[];
 }
 
@@ -19,6 +20,8 @@ export interface IConfigService {
   getPlugins(): { id: string; enabled: boolean }[];
   isPluginEnabled(pluginId: string): boolean;
   setPluginEnabled(pluginId: string, enabled: boolean): void;
+  getLanguage(): string;
+  setLanguage(lang: string): void;
 }
 
 export class ConfigService implements IConfigService {
@@ -32,6 +35,14 @@ export class ConfigService implements IConfigService {
     const savedTheme = localStorage.getItem("app_active_theme");
     if (savedTheme) {
       this.config.activeTheme = savedTheme;
+    }
+
+    // Restore language from localStorage if it exists
+    const savedLanguage = localStorage.getItem("app_language");
+    if (savedLanguage) {
+      this.config.language = savedLanguage;
+    } else {
+      this.config.language = "pt-BR"; // Default language
     }
 
     // Restore plugins state from localStorage if it exists
@@ -63,21 +74,30 @@ export class ConfigService implements IConfigService {
   }
 
   public isPluginEnabled(pluginId: string): boolean {
-    const plugin = this.config.plugins.find(p => p.id === pluginId);
+    const plugin = this.config.plugins.find((p) => p.id === pluginId);
     return plugin ? plugin.enabled : false;
   }
 
   public setPluginEnabled(pluginId: string, enabled: boolean): void {
-    const updatedPlugins = this.config.plugins.map(p => 
+    const updatedPlugins = this.config.plugins.map((p) =>
       p.id === pluginId ? { ...p, enabled } : p
     );
-    
-    if (!this.config.plugins.some(p => p.id === pluginId)) {
+
+    if (!this.config.plugins.some((p) => p.id === pluginId)) {
       updatedPlugins.push({ id: pluginId, enabled });
     }
 
     this.config.plugins = updatedPlugins;
     localStorage.setItem("app_plugins_state", JSON.stringify(updatedPlugins));
+  }
+
+  public getLanguage(): string {
+    return this.config.language;
+  }
+
+  public setLanguage(lang: string): void {
+    this.config.language = lang;
+    localStorage.setItem("app_language", lang);
   }
 }
 

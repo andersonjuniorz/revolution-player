@@ -24,6 +24,7 @@ export interface ILibraryService {
   removeScannedFolder(path: string): Promise<void>;
   scanLocalFiles(files: File[], folderName: string): Promise<Track[]>;
   setLocalDirectoryPath(path: string): Promise<Track[]>;
+  refreshLocalDirectory(): Promise<Track[]>;
   fetchTracksMetadata(trackIds: string[]): Promise<Track[]>;
   onStateChange(listener: (state: LibraryState) => void): () => void;
   getState(): LibraryState;

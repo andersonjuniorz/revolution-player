@@ -1,8 +1,10 @@
 import React from "react";
 import { useApp } from "../../context/AppContext";
+import { useTranslation } from "react-i18next";
 
 export const LoopSection: React.FC = () => {
   const { currentTime, loopABStart, loopABEnd, isLoopABActive, setABLoop, clearABLoop } = useApp();
+  const { t } = useTranslation();
 
   const formatTime = (secs: number) => {
     const minutes = Math.floor(secs / 60);
@@ -24,11 +26,25 @@ export const LoopSection: React.FC = () => {
 
   return (
     <div className="practice-section">
-      <span className="practice-section-title">Loop A/B</span>
-      
+      <span className="practice-section-title">{t("practice.loop")}</span>
+
       <div className="loop-status">
-        <span>Ponto A: {loopABStart !== null ? <span className="loop-val">{formatTime(loopABStart)}</span> : "não marcado"}</span>
-        <span>Ponto B: {loopABEnd !== null ? <span className="loop-val">{formatTime(loopABEnd)}</span> : "não marcado"}</span>
+        <span>
+          {t("practice.pointA")}{" "}
+          {loopABStart !== null ? (
+            <span className="loop-val">{formatTime(loopABStart)}</span>
+          ) : (
+            t("practice.unmarked")
+          )}
+        </span>
+        <span>
+          {t("practice.pointB")}{" "}
+          {loopABEnd !== null ? (
+            <span className="loop-val">{formatTime(loopABEnd)}</span>
+          ) : (
+            t("practice.unmarked")
+          )}
+        </span>
       </div>
 
       <div className="loop-buttons">
@@ -38,13 +54,10 @@ export const LoopSection: React.FC = () => {
         >
           A
         </button>
-        <button
-          className={`btn-loop ${isLoopABActive ? "active" : ""}`}
-          onClick={handleSetB}
-        >
+        <button className={`btn-loop ${isLoopABActive ? "active" : ""}`} onClick={handleSetB}>
           B
         </button>
-        
+
         {loopABStart !== null && (
           <button className="btn-loop btn-loop-clear" onClick={clearABLoop}>
             Limpar Loop

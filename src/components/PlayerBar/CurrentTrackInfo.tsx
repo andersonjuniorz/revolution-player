@@ -1,5 +1,6 @@
 import React from "react";
 import { Disc } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Track } from "../../models/track";
 
 interface CurrentTrackInfoProps {
@@ -8,6 +9,8 @@ interface CurrentTrackInfoProps {
 }
 
 export const CurrentTrackInfo: React.FC<CurrentTrackInfoProps> = ({ currentTrack, isPlaying }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="current-track-container">
       {currentTrack ? (
@@ -31,14 +34,14 @@ export const CurrentTrackInfo: React.FC<CurrentTrackInfoProps> = ({ currentTrack
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "var(--text-muted)",
+              color: "var(--text-muted)"
             }}
           >
             <Disc size={28} />
           </div>
           <div className="current-track-info">
             <span className="current-track-title" style={{ color: "var(--text-muted)" }}>
-              Nenhuma faixa tocando
+              {t("ui.noTrackPlaying")}
             </span>
             <span className="current-track-artist">-</span>
           </div>

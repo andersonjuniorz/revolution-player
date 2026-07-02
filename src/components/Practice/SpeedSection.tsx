@@ -1,18 +1,20 @@
 import React from "react";
 import { useApp } from "../../context/AppContext";
+import { useTranslation } from "react-i18next";
 
 export const SpeedSection: React.FC = () => {
   const { playbackRate, setPlaybackRate } = useApp();
+  const { t } = useTranslation();
   const speedPresets = [0.75, 0.9, 1.0, 1.1, 1.25];
 
   return (
     <div className="practice-section">
       <div className="control-slider-group">
         <div className="slider-header">
-          <span className="practice-section-title">Velocidade (BPM)</span>
+          <span className="practice-section-title">{t("practice.speed")}</span>
           <span className="slider-value">{playbackRate.toFixed(2)}x</span>
         </div>
-        
+
         <input
           type="range"
           min="0.5"

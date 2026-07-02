@@ -12,6 +12,7 @@ import nebulaTheme from "./themes/Nebula-Purple/theme.json";
 import pinkTheme from "./themes/Pink/theme.json";
 import lightTheme from "./themes/Light/theme.json";
 import darkNeonTheme from "./themes/Dark-Neon/theme.json";
+import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
 function AppContent() {
@@ -48,9 +49,23 @@ function AppContent() {
     initializePluginsSafely();
 
     const timer = setTimeout(() => {
+      // Revela a janela através do backend Rust
+      try {
+        invoke("show_main_window");
+      } catch (e) {
+        console.warn("Falha ao exibir janela", e);
+      }
+    }, 100); // 100ms é o suficiente para o React montar e pintar a tela preta
+
+    // Atualiza o timeout do boot para ser separado do show() se quisermos
+    const bootTimer = setTimeout(() => {
       setReady(true);
     }, 1000);
-    return () => clearTimeout(timer);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(bootTimer);
+    };
   }, []);
 
   // Dynamically apply selected theme properties
@@ -62,7 +77,7 @@ function AppContent() {
         "theme-nebula-purple": nebulaTheme,
         "theme-pink": pinkTheme,
         "theme-light": lightTheme,
-        "theme-dark-neon": darkNeonTheme,
+        "theme-dark-neon": darkNeonTheme
       };
 
       if (nativeThemes[activeThemeId]) {
@@ -71,7 +86,7 @@ function AppContent() {
         // Fallback to custom zip theme
         // Limpa os estilos inline injetados anteriormente para não sobrescrever o theme.css do zip
         const root = document.documentElement;
-        Object.keys(nebulaTheme).forEach(key => {
+        Object.keys(nebulaTheme).forEach((key) => {
           root.style.removeProperty(key);
         });
       }
@@ -99,16 +114,22 @@ function AppContent() {
 
       <div
         className={`app-layout ${showPractice ? "" : "hide-practice"}`}
-        style={{
-          "--sidebar-width": isSidebarCompact ? "72px" : "260px",
-          "--practice-width": `${practiceWidth}px`,
-        } as React.CSSProperties}
+        style={
+          {
+            "--sidebar-width": isSidebarCompact ? "72px" : "260px",
+            "--practice-width": `${practiceWidth}px`
+          } as React.CSSProperties
+        }
       >
         <Sidebar isCompact={isSidebarCompact} setIsCompact={setIsSidebarCompact} />
         <PluginsSidebar />
         <MainContent />
         {showPractice ? (
-          <PracticePanel practiceWidth={practiceWidth} setPracticeWidth={setPracticeWidth} setShowPractice={setShowPractice} />
+          <PracticePanel
+            practiceWidth={practiceWidth}
+            setPracticeWidth={setPracticeWidth}
+            setShowPractice={setShowPractice}
+          />
         ) : (
           <div
             onMouseEnter={() => setShowPractice(true)}
@@ -127,13 +148,15 @@ function AppContent() {
             }}
             title="Puxar Modo de Treino"
           >
-            <div style={{
-              width: "4px",
-              height: "40px",
-              backgroundColor: "var(--accent-primary)",
-              borderRadius: "4px",
-              opacity: 0.6
-            }} />
+            <div
+              style={{
+                width: "4px",
+                height: "40px",
+                backgroundColor: "var(--accent-primary)",
+                borderRadius: "4px",
+                opacity: 0.6
+              }}
+            />
           </div>
         )}
         <PlayerBar showPractice={showPractice} setShowPractice={setShowPractice} />

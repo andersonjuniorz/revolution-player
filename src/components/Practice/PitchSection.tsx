@@ -1,17 +1,20 @@
 import React from "react";
 import { useApp } from "../../context/AppContext";
+import { useTranslation } from "react-i18next";
 
 export const PitchSection: React.FC = () => {
   const { pitch, setPitch } = useApp();
+  const { t } = useTranslation();
   const pitchPresets = [-2, -1, 0, 1, 2];
 
   return (
     <div className="practice-section">
       <div className="control-slider-group">
         <div className="slider-header">
-          <span className="practice-section-title">Ajuste de Tom (Pitch)</span>
+          <span className="practice-section-title">{t("practice.pitch")}</span>
           <span className="slider-value">
-            {pitch > 0 ? `+${pitch}` : pitch} {Math.abs(pitch) === 1 ? "semitom" : "semitons"}
+            {pitch > 0 ? `+${pitch}` : pitch}{" "}
+            {Math.abs(pitch) === 1 ? t("semitone") : t("semitones")}
           </span>
         </div>
 

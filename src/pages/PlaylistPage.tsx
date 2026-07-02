@@ -2,23 +2,25 @@ import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { Trash, ListMusic, Plus, Edit2, ChevronLeft } from "lucide-react";
 import { TrackTable } from "../components/TrackTable/TrackTable";
+import { useTranslation } from "react-i18next";
 import "./PlaylistPage.css";
 
 export const PlaylistPage: React.FC = () => {
-  const { 
-    playlists, 
-    selectedPlaylistId, 
+  const {
+    playlists,
+    selectedPlaylistId,
     setSelectedPlaylistId,
     createPlaylist,
     updatePlaylist,
     deletePlaylist,
     removeTrackFromPlaylist
   } = useApp();
+  const { t } = useTranslation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null);
-  
+
   const [playlistName, setPlaylistName] = useState("");
   const [playlistDescription, setPlaylistDescription] = useState("");
 
@@ -53,7 +55,7 @@ export const PlaylistPage: React.FC = () => {
 
   const handleDeletePlaylist = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm("Tem certeza que deseja excluir esta playlist?")) {
+    if (window.confirm(t("ui.confirmDeletePlaylist"))) {
       await deletePlaylist(id);
       if (selectedPlaylistId === id) {
         setSelectedPlaylistId(null);
@@ -76,21 +78,25 @@ export const PlaylistPage: React.FC = () => {
         <div className="playlists-header">
           <h1 className="playlists-title">
             <ListMusic size={28} />
-            Playlists
+            {t("ui.playlists")}
           </h1>
-          <button className="btn-primary" onClick={openCreateModal} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <button
+            className="btn-primary"
+            onClick={openCreateModal}
+            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+          >
             <Plus size={18} />
-            Nova Playlist
+            {t("ui.newPlaylist")}
           </button>
         </div>
 
         {playlists.length === 0 ? (
-          <p className="empty-message">Você ainda não tem nenhuma playlist criada.</p>
+          <p className="empty-message">{t("ui.noPlaylistsCreated")}</p>
         ) : (
           <div className="playlists-grid">
             {playlists.map((playlist) => (
-              <div 
-                key={playlist.id} 
+              <div
+                key={playlist.id}
                 className="playlist-card-dash"
                 onClick={() => handlePlaylistClick(playlist.id)}
               >
@@ -98,24 +104,26 @@ export const PlaylistPage: React.FC = () => {
                 <div className="playlist-card-info">
                   <h3 className="playlist-card-name">{playlist.name}</h3>
                   <p className="playlist-card-desc">{playlist.description}</p>
-                  <span className="playlist-card-count">{playlist.tracks.length} músicas</span>
+                  <span className="playlist-card-count">
+                    {playlist.tracks.length} {t("ui.songs")}
+                  </span>
                 </div>
-                
+
                 <div className="playlist-card-actions">
-                  <button 
+                  <button
                     className="btn-action edit"
                     onClick={(e) => {
                       e.stopPropagation();
                       openEditModal(playlist.id, playlist.name, playlist.description);
                     }}
-                    title="Editar"
+                    title={t("ui.edit")}
                   >
                     <Edit2 size={16} />
                   </button>
-                  <button 
+                  <button
                     className="btn-action delete"
                     onClick={(e) => handleDeletePlaylist(playlist.id, e)}
-                    title="Excluir"
+                    title={t("ui.delete")}
                   >
                     <Trash size={16} />
                   </button>
@@ -129,11 +137,13 @@ export const PlaylistPage: React.FC = () => {
         {isModalOpen && (
           <div className="modal-backdrop">
             <form className="modal-content" onSubmit={handleSavePlaylist}>
-              <h3 className="modal-title">{modalMode === "create" ? "Nova Playlist" : "Editar Playlist"}</h3>
+              <h3 className="modal-title">
+                {modalMode === "create" ? t("ui.newPlaylist") : t("ui.editPlaylist")}
+              </h3>
               <input
                 type="text"
                 className="scanner-input"
-                placeholder="Nome da playlist"
+                placeholder={t("ui.playlistNamePlaceholder")}
                 value={playlistName}
                 onChange={(e) => setPlaylistName(e.target.value)}
                 autoFocus
@@ -141,7 +151,7 @@ export const PlaylistPage: React.FC = () => {
               <input
                 type="text"
                 className="scanner-input"
-                placeholder="Descrição (Opcional)"
+                placeholder={t("ui.playlistDescriptionPlaceholder")}
                 value={playlistDescription}
                 onChange={(e) => setPlaylistDescription(e.target.value)}
                 style={{ marginTop: "12px" }}
@@ -152,10 +162,10 @@ export const PlaylistPage: React.FC = () => {
                   className="btn-secondary"
                   onClick={() => setIsModalOpen(false)}
                 >
-                  Cancelar
+                  {t("ui.cancel")}
                 </button>
                 <button type="submit" className="btn-primary">
-                  {modalMode === "create" ? "Criar" : "Salvar"}
+                  {modalMode === "create" ? t("ui.create") : t("ui.save")}
                 </button>
               </div>
             </form>
@@ -168,26 +178,26 @@ export const PlaylistPage: React.FC = () => {
   // Se houver uma playlist selecionada, renderiza os detalhes dela
   return (
     <div>
-      <button 
-        className="btn-back" 
-        onClick={handleBackToDashboard}
-      >
-        <ChevronLeft size={16} /> Voltar para Playlists
+      <button className="btn-back" onClick={handleBackToDashboard}>
+        <ChevronLeft size={16} /> {t("ui.backToPlaylists")}
       </button>
 
       {/* Header da Playlist */}
-      <div className="hero-banner" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--accent-primary) 15%, transparent) 0%, color-mix(in srgb, var(--bg-active) 50%, transparent) 100%)", marginTop: "16px" }}>
-        <img
-          src={activePlaylist.coverUrl}
-          alt={activePlaylist.name}
-          className="hero-cover"
-        />
+      <div
+        className="hero-banner"
+        style={{
+          background:
+            "linear-gradient(180deg, color-mix(in srgb, var(--accent-primary) 15%, transparent) 0%, color-mix(in srgb, var(--bg-active) 50%, transparent) 100%)",
+          marginTop: "16px"
+        }}
+      >
+        <img src={activePlaylist.coverUrl} alt={activePlaylist.name} className="hero-cover" />
         <div className="hero-info">
-          <span className="hero-tag">Playlist</span>
+          <span className="hero-tag">{t("ui.playlist")}</span>
           <h1 className="hero-title">{activePlaylist.name}</h1>
           <p className="hero-subtitle">{activePlaylist.description}</p>
           <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-            {activePlaylist.tracks.length} músicas salvas
+            {activePlaylist.tracks.length} {t("ui.songsSaved")}
           </span>
         </div>
       </div>
@@ -195,10 +205,10 @@ export const PlaylistPage: React.FC = () => {
       {/* Faixas da Playlist */}
       <div style={{ marginTop: "24px" }}>
         {activePlaylist.tracks.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>Esta playlist está vazia. Adicione músicas a ela pela Biblioteca.</p>
+          <p style={{ color: "var(--text-muted)" }}>{t("ui.emptyPlaylist")}</p>
         ) : (
-          <TrackTable 
-            tracks={activePlaylist.tracks} 
+          <TrackTable
+            tracks={activePlaylist.tracks}
             renderExtraActions={(track) => (
               <button
                 className="btn-transport"

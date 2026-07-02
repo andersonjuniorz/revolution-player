@@ -7,6 +7,7 @@ import { LibraryPage } from "../../pages/LibraryPage";
 import { SettingsPage } from "../../pages/SettingsPage";
 import { PluginsPage } from "../../pages/PluginsPage";
 import { ThemesPage } from "../../pages/ThemesPage";
+import { PluginViewPage } from "../../pages/PluginViewPage";
 import "./MainContent.css";
 
 export const MainContent: React.FC = () => {
@@ -30,6 +31,9 @@ export const MainContent: React.FC = () => {
       case "themes":
         return <ThemesPage />;
       default:
+        if (activeTab.startsWith("plugin-")) {
+          return <PluginViewPage pluginId={activeTab.replace("plugin-", "")} />;
+        }
         return <div>Página não encontrada</div>;
     }
   };

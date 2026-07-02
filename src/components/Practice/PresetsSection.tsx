@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { Save, Trash } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PracticePreset {
   id: string;
@@ -12,8 +13,10 @@ interface PracticePreset {
 }
 
 export const PresetsSection: React.FC = () => {
-  const { playbackRate, pitch, loopABStart, loopABEnd, setPlaybackRate, setPitch, setABLoop } = useApp();
-  
+  const { playbackRate, pitch, loopABStart, loopABEnd, setPlaybackRate, setPitch, setABLoop } =
+    useApp();
+  const { t } = useTranslation();
+
   const [presets, setPresets] = useState<PracticePreset[]>([]);
   const [newPresetName, setNewPresetName] = useState("");
   const [showSaveForm, setShowSaveForm] = useState(false);
@@ -44,7 +47,7 @@ export const PresetsSection: React.FC = () => {
       speed: playbackRate,
       pitch: pitch,
       loopStart: loopABStart,
-      loopEnd: loopABEnd,
+      loopEnd: loopABEnd
     };
 
     savePresets([...presets, preset]);
@@ -66,39 +69,42 @@ export const PresetsSection: React.FC = () => {
   return (
     <div className="practice-section">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span className="practice-section-title">Meus Presets</span>
+        <span className="practice-section-title">{t("practice.presets")}</span>
         {!showSaveForm && (
           <button
             onClick={() => setShowSaveForm(true)}
             className="btn-preset"
             style={{ width: "auto", display: "flex", alignItems: "center", gap: "4px" }}
           >
-            <Save size={12} /> Salvar
+            <Save size={12} /> {t("practice.save")}
           </button>
         )}
       </div>
 
       {showSaveForm && (
-        <form onSubmit={handleSavePreset} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <form
+          onSubmit={handleSavePreset}
+          style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+        >
           <input
             type="text"
             className="scanner-input"
             style={{ fontSize: "0.85rem", padding: "6px" }}
-            placeholder="Nome (ex: Solo Rápido)"
+            placeholder={t("practice.presetNamePlaceholder")}
             value={newPresetName}
             onChange={(e) => setNewPresetName(e.target.value)}
             autoFocus
           />
           <div style={{ display: "flex", gap: "6px" }}>
-            <button
-              type="button"
-              className="btn-preset"
-              onClick={() => setShowSaveForm(false)}
-            >
-              Cancelar
+            <button type="button" className="btn-preset" onClick={() => setShowSaveForm(false)}>
+              {t("ui.cancel")}
             </button>
-            <button type="submit" className="btn-preset" style={{ borderColor: "var(--accent-primary)" }}>
-              Gravar
+            <button
+              type="submit"
+              className="btn-preset"
+              style={{ borderColor: "var(--accent-primary)" }}
+            >
+              {t("practice.saveBtn")}
             </button>
           </div>
         </form>
@@ -107,26 +113,23 @@ export const PresetsSection: React.FC = () => {
       <div className="preset-list">
         {presets.length === 0 ? (
           <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center" }}>
-            Nenhum preset gravado.
+            {t("practice.noPresets")}
           </span>
         ) : (
           presets.map((preset) => (
-            <div
-              key={preset.id}
-              className="preset-card"
-              onClick={() => handleLoadPreset(preset)}
-            >
+            <div key={preset.id} className="preset-card" onClick={() => handleLoadPreset(preset)}>
               <div>
                 <div style={{ fontWeight: 500 }}>{preset.name}</div>
                 <div className="preset-meta">
-                  {preset.speed.toFixed(2)}x | {preset.pitch > 0 ? `+${preset.pitch}` : preset.pitch}st
-                  {preset.loopStart !== null && " | Loop ativo"}
+                  {preset.speed.toFixed(2)}x |{" "}
+                  {preset.pitch > 0 ? `+${preset.pitch}` : preset.pitch}st
+                  {preset.loopStart !== null && ` | ${t("practice.loopActive")}`}
                 </div>
               </div>
               <button
                 className="btn-remove-folder"
                 onClick={(e) => handleDeletePreset(preset.id, e)}
-                title="Excluir preset"
+                title={t("practice.deletePreset")}
               >
                 <Trash size={12} />
               </button>
